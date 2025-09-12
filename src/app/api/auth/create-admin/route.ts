@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database not configured. Please set up Supabase environment variables.' },
+        { status: 503 }
+      );
+    }
+
     const { data: existingAdmin } = await supabaseAdmin
       .from('users')
       .select('id')

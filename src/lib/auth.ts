@@ -17,7 +17,28 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const { data: user, error } = await supabaseAdmin!
+          if (!supabaseAdmin) {
+            // Fallback to demo users when Supabase is not configured
+            if (credentials.email === 'admin@demo.com' && credentials.password === 'demo') {
+              return {
+                id: 'demo-admin',
+                email: 'admin@demo.com',
+                name: 'Demo Admin',
+                role: 'admin'
+              };
+            }
+            if (credentials.email === 'user@demo.com' && credentials.password === 'demo') {
+              return {
+                id: 'demo-user',
+                email: 'user@demo.com',
+                name: 'Demo User',
+                role: 'commuter'
+              };
+            }
+            return null;
+          }
+
+          const { data: user, error } = await supabaseAdmin
             .from('users')
             .select('id, email, name, password_hash, role, is_active')
             .eq('email', credentials.email)

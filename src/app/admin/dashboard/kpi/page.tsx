@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { Chart } from "@/components/ui/Chart";
 import { api } from "@/lib/api";
 import { KPI } from "@/lib/types";
@@ -13,6 +14,7 @@ import {
   FaExclamationTriangle,
   FaArrowUp,
   FaCalendarAlt,
+  FaPlay,
 } from "react-icons/fa";
 import styles from "./kpi.module.scss";
 
@@ -23,6 +25,8 @@ export default function KPIPage() {
   const [demand, setDemand] = useState<{ hour: string; demand: number }[]>([]);
   const [selectedStation, setSelectedStation] = useState<string>("");
   const [stations, setStations] = useState<string[]>([]);
+  const [training, setTraining] = useState(false);
+  const [trainResult, setTrainResult] = useState<string>("");
 
   useEffect(() => {
     loadKPIData();
@@ -66,41 +70,66 @@ export default function KPIPage() {
     loadStations();
   }, [loadStations]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        if (!selectedStation) return;
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const date = tomorrow.toISOString().slice(0, 10);
-        const res = await fetch("/api/demand/forecast", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ station: selectedStation, date }),
-        });
-        if (!res.ok) {
-          try {
-            const err = await res.json();
-            const detail: string = String(err?.detail || "");
-            if (detail.includes("No model available")) {
-              await loadStations();
-            }
-          } catch {}
-          setDemand([]);
-          return;
-        }
-        const data = await res.json();
-        const preds: any[] = Array.isArray(data?.predictions)
-          ? data.predictions
-          : [];
-        setDemand(
-          preds.map((p) => ({ hour: p.hour, demand: Number(p.demand) || 0 }))
-        );
-      } catch {
+  const loadForecast = React.useCallback(async () => {
+    try {
+      if (!selectedStation) return;
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const date = tomorrow.toISOString().slice(0, 10);
+      const res = await fetch("/api/demand/forecast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ station: selectedStation, date }),
+      });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          const detail: string = String(err?.detail || "");
+          if (detail.includes("No model available")) {
+            await loadStations();
+          }
+        } catch {}
         setDemand([]);
+        return;
       }
-    })();
-  }, [selectedStation]);
+      const data = await res.json();
+      const preds: any[] = Array.isArray(data?.predictions)
+        ? data.predictions
+        : [];
+      setDemand(
+        preds.map((p) => ({ hour: p.hour, demand: Number(p.demand) || 0 }))
+      );
+    } catch {
+      setDemand([]);
+    }
+  }, [selectedStation, loadStations]);
+
+  useEffect(() => {
+    loadForecast();
+  }, [selectedStation, loadForecast]);
+
+  const handleTrain = async () => {
+    try {
+      setTraining(true);
+      setTrainResult("");
+      const res = await fetch("/api/train", { method: "POST" });
+      if (!res.ok) {
+        try {
+          const err = await res.json();
+          setTrainResult(String(err?.error || "Training failed"));
+        } catch {
+          setTrainResult("Training failed");
+        }
+        return;
+      }
+      setTrainResult("Training started successfully.");
+      await loadForecast();
+    } catch {
+      setTrainResult("Training failed");
+    } finally {
+      setTraining(false);
+    }
+  };
 
   const loadKPIData = async () => {
     try {
@@ -165,6 +194,9 @@ export default function KPIPage() {
       >
         <h1 className={styles.title}>Key Performance Indicators</h1>
         <div className={styles.controls}>
+          <Button onClick={handleTrain} loading={training} icon={<FaPlay />}>
+            Train Model
+          </Button>
           <select
             value={selectedStation}
             onChange={(e) => setSelectedStation(e.target.value)}
@@ -188,6 +220,11 @@ export default function KPIPage() {
           </select>
         </div>
       </motion.div>
+      {trainResult && (
+        <div className={styles.notice}>
+          {trainResult}
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className={styles.kpiCards}>

@@ -28,6 +28,12 @@ function answerForCommuter(text: string): string {
 
 function answerForAdmin(text: string): string {
   const q = text.toLowerCase();
+  if (q === 'hi' || q === 'hello' || q.includes('hey')) {
+    return 'Hi! I can help with Induction, Conflicts, KPI, Maintenance, Stabling, Migrate, Tomorrow’s Plan, and Users. Ask me about any of these.';
+  }
+  if (q.includes('explain all') || q.includes('explainall') || q.includes('explain') && q.includes('all')) {
+    return 'Overview: Induction optimizes train run/standby/maintenance; Conflicts shows issues per train; KPI shows metrics and demand forecast; Maintenance tracks job cards; Stabling manages depot placements; Migrate moves/imports data; Tomorrow’s Plan prepares next-day schedule; Users manages roles.';
+  }
   if (q.includes('induction') || q.includes('optimizer') || q.includes('schedule')) return 'Admin → Induction: run the optimizer, review ranked train decisions, and export results.';
   if (q.includes('stabling') || q.includes('depot')) return 'Admin → Stabling: view depot schematic, select trains, and simulate shunting moves.';
   if (q.includes('maintenance') || q.includes('job card')) return 'Admin → Maintenance: review maintenance records and statuses.';
@@ -67,22 +73,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (!AI_CONFIG.provider || AI_CONFIG.provider === 'none') {
-      if (role === 'commuter') {
-        if (!isAppRelatedForCommuter(text)) {
-          return NextResponse.json({ reply: 'I can only answer app-related commuter questions (tickets, trips, alerts, settings).' });
-        }
-        return NextResponse.json({ reply: answerForCommuter(text) });
-      }
-      return NextResponse.json({ reply: answerForAdmin(text) });
+      // Neither backend chat responded nor AI provider configured
+      return NextResponse.json({ reply: 'AI is not connected.' }, { status: 503 });
     }
 
     const system = role === 'commuter'
       ? 'You are a metro commuter assistant for our app. Only answer questions about tickets, trips (planner), routes, alerts, settings/account, login/signup. Refuse out-of-scope topics politely. Be concise (<= 3 sentences).'
       : 'You are an admin assistant for our metro operations app. Guide the admin on Induction (optimizer), Stabling, Maintenance, KPI, Conflicts, and Migrate. Do not disclose secrets or user data. Be concise (<= 4 sentences).';
 
-    if (role === 'commuter' && !isAppRelatedForCommuter(text)) {
-      return NextResponse.json({ reply: 'I can only answer app-related commuter questions (tickets, trips, alerts, settings).' });
-    }
+    // With AI configured, allow all user inputs without app-scope restrictions
 
     const reply = await generateChatCompletion([
       { role: 'system', content: system },

@@ -9,37 +9,25 @@ export async function GET(
     const fastapiUrl = process.env.INDUCTION_API_URL;
     const { train_id } = params || { train_id: '' };
 
-    const mockResponse = () => {
-      const hasConflicts = Number(train_id.slice(-1)) % 2 === 0;
-      const item = {
-        train_id,
-        conflicts: hasConflicts
-          ? [
-              { rule: 'fitness', status: 'failed', reason: 'Fitness expired' },
-              { rule: 'job_card', status: 'failed', reason: 'Open high-priority job card' },
-            ]
-          : [],
-      };
-      return NextResponse.json(item);
-    };
-
     if (!fastapiUrl) {
-      return mockResponse();
+      return NextResponse.json(
+        { error: 'Induction API URL not configured' },
+        { status: 503 }
+      );
     }
 
     const res = await fetch(`${fastapiUrl}/api/conflicts/${encodeURIComponent(train_id)}`, { cache: 'no-store' });
     if (!res.ok) {
-      return mockResponse();
+      throw new Error(`FastAPI request failed: ${res.status}`);
     }
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (_e) {
-    let fallbackId = '';
-    try {
-      const p = await context?.params;
-      fallbackId = p?.train_id || '';
-    } catch {}
-    return NextResponse.json({ train_id: fallbackId, conflicts: [] });
+  } catch (error) {
+    console.error('Conflicts API error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch train conflicts' },
+      { status: 500 }
+    );
   }
 }
 

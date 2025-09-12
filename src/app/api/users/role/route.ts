@@ -10,6 +10,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+    }
+
     const { data: currentUser, error: currentUserError } = await supabaseAdmin
       .from('users')
       .select('*')

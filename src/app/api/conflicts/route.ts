@@ -1,75 +1,28 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-function getTrainData() {
-  try {
-    const filePath = join(process.cwd(), 'src', 'data', 'admin', 'trains.json');
-    const fileContent = readFileSync(filePath, 'utf8');
-    return JSON.parse(fileContent);
-  } catch (error) {
-    console.error('Error reading trains.json:', error);
-    return [];
-  }
-}
 
 export async function GET(_request: NextRequest) {
   try {
     const fastapiUrl = process.env.INDUCTION_API_URL;
 
-    const mockResponse = () => {
-      const trains = getTrainData();
-      const items = trains.map((train: any) => {
-        const conflicts = [];
-        
-        if (!train.fitness.rollingStock || !train.fitness.signalling || !train.fitness.telecom) {
-          conflicts.push({ 
-            rule: 'fitness', 
-            status: 'failed', 
-            reason: 'Fitness certificate expired or invalid' 
-          });
-        }
-        
-        if (train.jobCards > 0) {
-          conflicts.push({ 
-            rule: 'job_card', 
-            status: 'failed', 
-            reason: `Open job cards: ${train.jobCards}` 
-          });
-        }
-        
-        if (train.mileage > 20000) {
-          conflicts.push({ 
-            rule: 'maintenance', 
-            status: 'failed', 
-            reason: 'High mileage - maintenance required' 
-          });
-        }
-
-        return {
-          train_id: train.id,
-          conflicts
-        };
-      });
-      return NextResponse.json(items);
-    };
-
     if (!fastapiUrl) {
-      return mockResponse();
+      return NextResponse.json(
+        { error: 'Induction API URL not configured' },
+        { status: 503 }
+      );
     }
 
     const res = await fetch(`${fastapiUrl}/api/conflicts`, { cache: 'no-store' });
     if (!res.ok) {
-      return mockResponse();
+      throw new Error(`FastAPI request failed: ${res.status}`);
     }
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (_e) {
-    const items = Array.from({ length: 3 }, (_, i) => ({
-      train_id: `KMRL-${String(i + 1).padStart(3, '0')}`,
-      conflicts: [],
-    }));
-    return NextResponse.json(items);
+  } catch (error) {
+    console.error('Conflicts API error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch conflicts' },
+      { status: 500 }
+    );
   }
 }
 
