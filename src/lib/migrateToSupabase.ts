@@ -253,6 +253,10 @@ export async function generateSampleData() {
 }
 
 async function createInitialAdmin() {
+  if (!supabaseAdmin) {
+    console.error('Supabase is not configured. Please set your environment variables.');
+    return;
+  }
   try {
     const { data: existingAdmin } = await supabaseAdmin
       .from('users')
