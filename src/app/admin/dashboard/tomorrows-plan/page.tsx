@@ -54,6 +54,52 @@ export default function TomorrowsPlanPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
+  // Check if a train was modified by AI
+  const isAIModified = (trainNumber: string) => {
+    try {
+      if (typeof window !== 'undefined') {
+        // Check in the schedule first (for withdrawn trains)
+        const schedule = JSON.parse(window.localStorage.getItem('tomorrows_plan_schedule') || '[]');
+        const scheduleTrain = schedule.find((trip: any) => 
+          trip.trainNumber === trainNumber || trip.trainName === trainNumber
+        );
+        
+        if (scheduleTrain && scheduleTrain.aiModified) {
+          return true;
+        }
+        
+        // Check in the plan results
+        const plan = JSON.parse(window.localStorage.getItem('induction_optimizer_results') || '[]');
+        const train = plan.find((t: any) => 
+          t.trainId === trainNumber || t.train_id === trainNumber ||
+          t.trainId === trainNumber.replace('KMRC ', '') || 
+          t.train_id === trainNumber.replace('KMRC ', '')
+        );
+        return train && (train.reason?.includes('AI') || train.reason?.includes('Withdrawn') || train.reason?.includes('Replacement'));
+      }
+    } catch (e) {
+      console.warn('Failed to check AI modification status:', e);
+    }
+    return false;
+  };
+
+  // Check if a train was added by AI
+  const isAIAdded = (trainNumber: string) => {
+    try {
+      if (typeof window !== 'undefined') {
+        const schedule = JSON.parse(window.localStorage.getItem('tomorrows_plan_schedule') || '[]');
+        const scheduleTrain = schedule.find((trip: any) => 
+          trip.trainNumber === trainNumber || trip.trainName === trainNumber
+        );
+        
+        return scheduleTrain && scheduleTrain.aiModified && scheduleTrain.aiAction === 'added';
+      }
+    } catch (e) {
+      console.warn('Failed to check AI addition status:', e);
+    }
+    return false;
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -517,16 +563,43 @@ export default function TomorrowsPlanPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {plannedSchedule.map((r, idx) => (
-                      <tr key={`${r.trainNumber}-${idx}`}>
-                        <td>{r.trainNumber}</td>
-                        <td>{r.origin}</td>
-                        <td>{r.destination}</td>
-                        <td>{r.departure}</td>
-                        <td>{r.arrival}</td>
-                        <td>{r.status}</td>
-                      </tr>
-                    ))}
+                    {plannedSchedule.map((r, idx) => {
+                      const aiModified = isAIModified(r.trainNumber);
+                      const aiAdded = isAIAdded(r.trainNumber);
+                      const isWithdrawn = r.status === 'Withdrawn';
+                      return (
+                        <tr key={`${r.trainNumber}-${idx}`} className={`${aiModified ? styles.aiModifiedRow : ''} ${aiAdded ? styles.aiAddedRow : ''} ${isWithdrawn ? styles.withdrawnRow : ''}`}>
+                          <td>
+                            {r.trainNumber}
+                            {aiAdded && (
+                              <span className={styles.aiAddedTag}>AI Added</span>
+                            )}
+                            {aiModified && !aiAdded && (
+                              <span className={styles.aiModifiedTag}>AI Modified</span>
+                            )}
+                          </td>
+                          <td>{r.origin}</td>
+                          <td>{r.destination}</td>
+                          <td>{r.departure}</td>
+                          <td>{r.arrival}</td>
+                          <td>
+                            <span className={aiAdded ? styles.aiAddedStatus : aiModified ? styles.aiModifiedStatus : ''}>
+                              {r.status}
+                            </span>
+                            {r.status === 'Withdrawn' && (
+                              <span className={styles.withdrawnReason}>
+                                ({(r as any).withdrawReason || 'AI Modified'})
+                              </span>
+                            )}
+                            {aiAdded && (
+                              <span className={styles.addedReason}>
+                                ({(r as any).addReason || 'AI Added'})
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -562,13 +635,18 @@ export default function TomorrowsPlanPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {trains.map((train) => (
-                    <tr key={train.train_id} className={styles.trainRow} onClick={() => openTrainDetails(train.train_id)}>
-                      <td className={styles.trainId}>
-                        <button className={styles.linkLike} onClick={(e) => { e.stopPropagation(); openTrainDetails(train.train_id); }}>
-                          {train.train_id}
-                        </button>
-                      </td>
+                  {trains.map((train) => {
+                    const aiModified = isAIModified(train.train_id);
+                    return (
+                      <tr key={train.train_id} className={`${styles.trainRow} ${aiModified ? styles.aiModifiedRow : ''}`} onClick={() => openTrainDetails(train.train_id)}>
+                        <td className={styles.trainId}>
+                          <button className={styles.linkLike} onClick={(e) => { e.stopPropagation(); openTrainDetails(train.train_id); }}>
+                            {train.train_id}
+                            {aiModified && (
+                              <span className={styles.aiModifiedTag}>AI Modified</span>
+                            )}
+                          </button>
+                        </td>
                       <td className={styles.statusCell}>
                         {getStatusIcon(train.status)}
                         <span className={styles.statusText}>{train.status}</span>
@@ -603,7 +681,8 @@ export default function TomorrowsPlanPage() {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/lib/theme';
 import { ParallaxProvider } from 'react-scroll-parallax';
 import { Toaster } from 'react-hot-toast';
@@ -8,7 +8,7 @@ import { LoadingProvider } from '@/contexts/LoadingContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <ThemeProvider>
         <LoadingProvider>
           <ParallaxProvider>
@@ -28,6 +28,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </ParallaxProvider>
         </LoadingProvider>
       </ThemeProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }

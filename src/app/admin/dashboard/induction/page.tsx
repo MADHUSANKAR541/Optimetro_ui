@@ -7,10 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { RouteLayer } from '@/components/maps/RouteLayer';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { AdminDashboardMap } from '@/components/maps/AdminDashboardMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useTrains, useGtfsRoutes, useGtfsTripsByRoute, useGtfsShapesById } from '@/hooks/useSupabaseApi';
 import { api } from '@/lib/api';
@@ -413,82 +410,22 @@ export default function InductionPage() {
             }
           >
             {showMap && (
-              <div className={styles.mapWrapper}>
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  {/* Optional GTFS route/shape demo */}
-                  {Array.isArray(gtfsRoutes) && gtfsRoutes.length > 0 && (
-                    <div style={{ position: 'absolute', zIndex: 1000, right: 12, top: 12, background: 'var(--color-surface)', padding: 8, borderRadius: 8 }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <select
-                          value={selectedGtfsRoute}
-                          onChange={(e) => { setSelectedGtfsRoute(e.target.value); setSelectedGtfsTrip(''); }}
-                          style={{ padding: 6 }}
-                        >
-                          <option value="">GTFS Route</option>
-                          {gtfsRoutes.map((r: any) => (
-                            <option key={r.route_id} value={r.route_id}>
-                              {r.route_short_name || r.route_long_name || r.route_id}
-                            </option>
-                          ))}
-                        </select>
-                        {Array.isArray(gtfsTrips) && gtfsTrips.length > 0 && (
-                          <select
-                            value={selectedGtfsTrip}
-                            onChange={(e) => setSelectedGtfsTrip(e.target.value)}
-                            style={{ padding: 6 }}
-                          >
-                            <option value="">Trip</option>
-                            {gtfsTrips.map((t: any) => (
-                              <option key={t.trip_id} value={t.trip_id}>
-                                {t.trip_headsign || t.trip_id}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Metro Lines and Stations */}
-                  <MetroLayers
-                    lines={Array.isArray(linesData) ? linesData : []}
-                    stations={Array.isArray(stationsData) ? stationsData : []}
-                    showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                    showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                    onStationClick={handleStationClick}
-                  />
-
-                  {/* Train Routes for Selected Results */}
-                  {selectedResult && (() => {
-                    const result = optimizationResults.find(r => r.trainId === selectedResult);
-                    if (!result) return null;
-                    
-                    const route = generateTrainRoute(result.trainId, result.action);
-                    if (!route) return null;
-                    
-                    return (
-                      <RouteLayer
-                        route={route}
-                        isVisible={true}
-                      />
-                    );
-                  })()}
-                </MapContainer>
-
-                {/* Layer Controls */}
-                {showLayers && (
-                  <div className={styles.layerControls}>
-                    <LayerToggles
-                      layers={mapState.layers}
-                      onToggleLayer={toggleLayer}
-                    />
-                  </div>
-                )}
-              </div>
+              <AdminDashboardMap
+                height="500px"
+                showControls={true}
+                onStationClick={(station) => {
+                  console.log('Station clicked:', station);
+                  toast.success(`Station: ${station.title}`);
+                }}
+                onTrainClick={(train) => {
+                  console.log('Train clicked:', train);
+                  toast.success(`Train: ${train.title}`);
+                }}
+                onAlertClick={(alert) => {
+                  console.log('Alert clicked:', alert);
+                  toast.success(`Alert: ${alert.title}`);
+                }}
+              />
             )}
           </MapCard>
         </motion.div>

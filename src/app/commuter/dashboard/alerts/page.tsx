@@ -7,10 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { AlertsLayer } from '@/components/maps/AlertsLayer';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { CommuterDashboardMap } from '@/components/maps/CommuterDashboardMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useAlerts } from '@/hooks/useMockApi';
 import { api } from '@/lib/api';
@@ -106,6 +103,10 @@ export default function AlertsPage() {
 
   const handleStationClick = (station: Station) => {
     toast(`Station: ${station.name}`);
+  };
+
+  const handleRouteClick = (route: any) => {
+    toast(`Route: ${route.title || route.name || 'Unknown'}`);
   };
 
   const handlePlanDetour = (alert: MapAlert) => {
@@ -204,36 +205,21 @@ export default function AlertsPage() {
           >
             {showMap && (
               <div className={styles.mapWrapper}>
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  {/* Metro Lines and Stations */}
-                  <MetroLayers
-                    lines={linesData || []}
-                    stations={stationsData || []}
-                    showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                    showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                    onStationClick={handleStationClick}
-                  />
+                <CommuterDashboardMap
+                  height="500px"
+                  showControls={true}
+                  onStationClick={handleStationClick}
+                  onRouteClick={handleRouteClick}
+                />
 
-                  {/* Service Alerts */}
-                  <AlertsLayer
-                    alerts={filteredMapAlerts}
-                    isVisible={mapState.layers.find(l => l.id === 'alerts')?.visible}
-                    onAlertClick={handleAlertClick}
-                    showPulseEffect={true}
-                  />
-                </MapContainer>
-
-                {/* Layer Controls */}
+                {/* Layer Controls - TODO: Implement Google Maps layer toggles */}
                 {showLayers && (
                   <div className={styles.layerControls}>
-                    <LayerToggles
-                      layers={mapState.layers}
-                      onToggleLayer={toggleLayer}
-                    />
+                    <div style={{ padding: '8px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                      <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                        Layer controls coming soon
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

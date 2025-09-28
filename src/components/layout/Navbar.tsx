@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/Button";
 import { FiSun, FiMoon, FiMenu, FiX, FiUser, FiLogOut } from "react-icons/fi";
-import { FaTrain, FaMapMarkerAlt } from "react-icons/fa";
+import { FaTrain } from "react-icons/fa";
 import styles from "./Navbar.module.scss";
 
 export function Navbar() {
-  const { data: session } = useSession();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,7 +27,7 @@ export function Navbar() {
   }, []);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+    logout();
   };
 
   return (
@@ -47,26 +47,22 @@ export function Navbar() {
           <a href="#about" className={styles.navLink}>
             About
           </a>
-          <a href="#contact" className={styles.navLink}>
-            Contact
+          <a href="#metro-map" className={styles.navLink}>
+            Route Map
           </a>
          
-          {session ? (
+          {user ? (
             <div className={styles.userSection}>
               <Link
                 href={
-                  session.user &&
-                  "role" in session.user &&
-                  session.user.role === "admin"
+                  user.role === "admin"
                     ? "/admin/dashboard/induction"
                     : "/commuter/dashboard"
                 }
                 className={styles.navLink}
               >
                 <FiUser className={styles.navIcon} />
-                {session.user &&
-                "role" in session.user &&
-                session.user.role === "admin"
+                {user.role === "admin"
                   ? "Admin Console"
                   : "Dashboard"}
               </Link>
@@ -123,11 +119,11 @@ export function Navbar() {
             About
           </a>
           <a
-            href="#contact"
+            href="#metro-map"
             className={styles.mobileNavLink}
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Contact
+            Route Map
           </a>
           <Link
             href="/status"
@@ -137,13 +133,11 @@ export function Navbar() {
             Status
           </Link>
 
-          {session ? (
+          {user ? (
             <>
               <Link
                 href={
-                  session.user &&
-                  "role" in session.user &&
-                  session.user.role === "admin"
+                  user.role === "admin"
                     ? "/admin/dashboard/induction"
                     : "/commuter/dashboard"
                 }
@@ -151,9 +145,7 @@ export function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <FiUser className={styles.navIcon} />
-                {session.user &&
-                "role" in session.user &&
-                session.user.role === "admin"
+                {user.role === "admin"
                   ? "Admin Console"
                   : "Dashboard"}
               </Link>

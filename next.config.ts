@@ -10,10 +10,14 @@ const nextConfig: NextConfig = {
 			"react-icons",
 			"framer-motion",
 			"recharts",
-			"react-leaflet"
+			"@googlemaps/js-api-loader"
 		]
 	},
 	productionBrowserSourceMaps: false,
+	// Allow Google Maps domains for images
+	images: {
+		domains: ['maps.googleapis.com', 'maps.gstatic.com'],
+	},
 };
 
 export default nextConfig;

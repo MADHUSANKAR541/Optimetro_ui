@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { MiniMap } from '@/components/maps/MiniMap';
+import { LeafletMap } from '@/components/maps/LeafletMap';
 import { api } from '@/lib/api';
 import { Trip, Ticket, Alert, Station, MapAlert } from '@/lib/types';
 import { 
@@ -240,10 +240,21 @@ export default function CommuterDashboard() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className={styles.miniMapCard}
         >
-          <MiniMap
-            onStationClick={handleStationClick}
-            onAlertClick={handleAlertClick}
-            showUserLocation={true}
+          <LeafletMap
+            center={[9.98, 76.45]}
+            zoom={12}
+            height="300px"
+            markers={[
+              {
+                id: 'user-location',
+                position: [9.98, 76.45] as [number, number],
+                title: 'Your Location',
+                description: 'Current position',
+                type: 'station',
+                color: '#10b981'
+              }
+            ]}
+            showControls={true}
           />
         </motion.div>
 

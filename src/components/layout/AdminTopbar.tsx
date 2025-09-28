@@ -1,14 +1,14 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/lib/theme';
 import { Button } from '@/components/ui/Button';
 import { FiSun, FiMoon, FiCalendar } from 'react-icons/fi';
 import styles from './Topbar.module.scss';
 
 export function AdminTopbar() {
-  const { data: session } = useSession();
+  const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -39,7 +39,7 @@ export function AdminTopbar() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={() => logout()}
         >
           Logout
         </Button>

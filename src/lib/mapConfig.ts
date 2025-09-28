@@ -1,25 +1,12 @@
 ﻿export const MAP_CONFIG = {
-  defaultCenter: [9.9312, 76.2673] as [number, number],
+  defaultCenter: { lat: 9.9312, lng: 76.2673 },
   defaultZoom: 12,
   
-  bounds: [
-    [9.8, 76.1], // Southwest
-    [10.1, 76.4]  // Northeast
-  ] as [[number, number], [number, number]],
-  
-  tiles: {
-    osm: {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '© OpenStreetMap contributors'
-    },
-    dark: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      attribution: '© OpenStreetMap contributors © CARTO'
-    },
-    mapbox: {
-      url: `https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
-      attribution: '© Mapbox'
-    }
+  bounds: {
+    north: 10.1,
+    south: 9.8,
+    east: 76.4,
+    west: 76.1
   },
   
   lineColors: {
@@ -68,13 +55,4 @@
       iconAnchor: [20, 20]
     }
   }
-};
-
-export const USE_MAPBOX = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-
-export const getTileConfig = (isDark: boolean = false) => {
-  if (USE_MAPBOX) {
-    return MAP_CONFIG.tiles.mapbox;
-  }
-  return isDark ? MAP_CONFIG.tiles.dark : MAP_CONFIG.tiles.osm;
 };

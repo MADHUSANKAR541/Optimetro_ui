@@ -7,10 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { AlertsLayer } from '@/components/maps/AlertsLayer';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { AdminDashboardMap } from '@/components/maps/AdminDashboardMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useAlerts } from '@/hooks/useSupabaseApi';
 import { useConflictsBackend } from '@/hooks/useConflictsBackend';
@@ -169,72 +166,32 @@ export default function ConflictsPage() {
             }
           >
             {showMap && (
-              <div className={styles.mapWrapper}>
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  {/* Metro Lines and Stations */}
-                  <MetroLayers
-                    lines={Array.isArray(linesData) ? linesData : []}
-                    stations={Array.isArray(stationsData) ? stationsData : []}
-                    showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                    showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                    onStationClick={handleStationClick}
-                  />
+              <AdminDashboardMap
+                height="500px"
+                showControls={true}
+                onStationClick={(station) => {
+                  console.log('Station clicked:', station);
+                  toast.success(`Station: ${station.title}`);
+                }}
+                onTrainClick={(train) => {
+                  console.log('Train clicked:', train);
+                  toast.success(`Train: ${train.title}`);
+                }}
+                onAlertClick={(alert) => {
+                  console.log('Alert clicked:', alert);
+                  toast.success(`Alert: ${alert.title}`);
+                }}
+              />
+            )}
 
-                  {/* Service Alerts */}
-                  <AlertsLayer
-                    alerts={Array.isArray(alertsData) ? alertsData : []}
-                    isVisible={mapState.layers.find(l => l.id === 'alerts')?.visible}
-                    onAlertClick={handleAlertClick}
-                    showPulseEffect={true}
-                  />
-
-                  {/* Conflict Spotlight Effects */}
-                  {selectedConflict && (() => {
-                    const conflict = (conflictsData || []).find((c: any) => c.id === selectedConflict);
-                    if (!conflict) return null;
-                    
-                    const affectedStations = getAffectedStations(conflict);
-                    
-                    return (
-                      <>
-                        {affectedStations.map((station, index) => (
-                          <motion.div
-                            key={station.id}
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className={styles.spotlightEffect}
-                            style={{
-                              position: 'absolute',
-                              left: `${(station.lng - 76.1) / 0.3 * 100}%`,
-                              top: `${(10.1 - station.lat) / 0.3 * 100}%`,
-                              width: '40px',
-                              height: '40px',
-                              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%)',
-                              borderRadius: '50%',
-                              pointerEvents: 'none',
-                              zIndex: 1000
-                            }}
-                          />
-                        ))}
-                      </>
-                    );
-                  })()}
-                </MapContainer>
-
-                {/* Layer Controls */}
-                {showLayers && (
-                  <div className={styles.layerControls}>
-                    <LayerToggles
-                      layers={mapState.layers}
-                      onToggleLayer={toggleLayer}
-                    />
-                  </div>
-                )}
+            {/* Layer Controls - TODO: Implement Google Maps layer toggles */}
+            {showLayers && (
+              <div className={styles.layerControls}>
+                <div style={{ padding: '8px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                    Layer controls coming soon
+                  </p>
+                </div>
               </div>
             )}
           </MapCard>

@@ -294,6 +294,53 @@
   color: var(--color-text-secondary);
 }
 
+.trainInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(37, 99, 235, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.trainIcon {
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+}
+
+.trainId {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.timeInfo {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.departureTime,
+.arrivalTime {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.departureTime {
+  color: #dc2626; // Red for departure
+}
+
+.arrivalTime {
+  color: #10b981; // Green for arrival
+}
+
 .journeyActions {
   display: flex;
   gap: var(--space-md);
@@ -400,5 +447,40 @@
   
   .stepArrow {
     transform: rotate(90deg);
+  }
+}
+
+// Enhanced station selection styles
+.selectedStation {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  background: rgba(37, 99, 235, 0.1);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-xs);
+}
+
+.stationSelect {
+  &.selected {
+    border-color: var(--color-primary);
+    background: rgba(37, 99, 235, 0.05);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+}
+
+.inputLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.swapButton {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }

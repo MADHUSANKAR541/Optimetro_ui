@@ -1,6 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { supabaseAdmin } from '@/lib/supabase';
+import { createUser } from '@/lib/simpleAuth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,73 +27,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!supabaseAdmin) {
+    const result = await createUser(email, password, name, role);
+
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Database not configured. Please set up Supabase environment variables.' },
-        { status: 503 }
-      );
-    }
-
-    const { data: existingUser } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
-      );
-    }
-
-    if (role === 'admin') {
-      const { data: adminExists } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('role', 'admin')
-        .single();
-
-      if (adminExists) {
-        return NextResponse.json(
-          { error: 'Only one admin account is allowed' },
-          { status: 403 }
-        );
-      }
-    }
-
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
-    const { data: newUser, error } = await supabaseAdmin
-      .from('users')
-      .insert({
-        email,
-        name,
-        password_hash: passwordHash,
-        role,
-        is_active: true
-      })
-      .select('id, email, name, role, created_at')
-      .single();
-
-    if (error) {
-      console.error('Error creating user:', error);
-      return NextResponse.json(
-        { error: 'Failed to create user account' },
-        { status: 500 }
+        { error: result.error || 'Failed to create user' },
+        { status: result.error === 'User with this email already exists' ? 409 : 500 }
       );
     }
 
     return NextResponse.json(
       {
         message: 'User created successfully',
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          role: newUser.role
-        }
+        user: result.user
       },
       { status: 201 }
     );

@@ -8,11 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { RouteLayer } from '@/components/maps/RouteLayer';
-import { AlertsLayer } from '@/components/maps/AlertsLayer';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { InteractivePlanMap } from '@/components/maps/InteractivePlanMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useAlerts } from '@/hooks/useMockApi';
 import { api } from '@/lib/api';
@@ -51,6 +47,15 @@ export default function PlanTripPage() {
   const { data: linesData = [], loading: linesLoading } = useMetroLines();
   const { data: alertsData = [], loading: alertsLoading } = useAlerts();
 
+  // Debug state changes
+  useEffect(() => {
+    console.log('🚇 PlanTripPage: fromStation state changed to:', fromStation);
+  }, [fromStation]);
+
+  useEffect(() => {
+    console.log('🚇 PlanTripPage: toStation state changed to:', toStation);
+  }, [toStation]);
+
   const handlePlanTrip = async () => {
     if (!fromStation || !toStation) {
       toast.error('Please select both departure and arrival stations');
@@ -64,23 +69,58 @@ export default function PlanTripPage() {
 
     setLoading(true);
     try {
-      const response = await api<Journey>('/journeys/plan');
-      setJourney(response.data);
-      toast.success('Trip planned successfully!');
+      const response = await fetch('/api/journeys/plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromStation,
+          to: toStation,
+          date: new Date().toISOString().split('T')[0], // Today's date
+          time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to plan trip');
+      }
+
+      const journeyData = await response.json();
+      setJourney(journeyData);
+      toast.success(`Trip planned! Train ${journeyData.steps[0]?.trainId} departing at ${journeyData.departureTime}`);
     } catch (error) {
-      toast.error('Failed to plan trip');
+      console.error('Journey planning error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to plan trip');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStationClick = (station: Station) => {
+  const handleStationClick = (station: any) => {
+    const stationName = station.title || station.name;
+    
     if (!fromStation) {
-      setFromStation(station.name);
+      setFromStation(stationName);
+      toast.success(`Selected departure station: ${stationName}`);
     } else if (!toStation) {
-      setToStation(station.name);
+      setToStation(stationName);
+      toast.success(`Selected destination station: ${stationName}`);
+    } else {
+      // If both stations are selected, allow changing them
+      if (stationName === fromStation) {
+        setFromStation('');
+        toast.success(`Cleared departure station`);
+      } else if (stationName === toStation) {
+        setToStation('');
+        toast.success(`Cleared destination station`);
+      } else {
+        // Replace the from station
+        setFromStation(stationName);
+        toast.success(`Changed departure station to: ${stationName}`);
+      }
     }
-    selectStation(station.id);
   };
 
   const handleStationHover = (station: Station) => {
@@ -90,8 +130,10 @@ export default function PlanTripPage() {
     toast(`Alert: ${alert.title}`);
   };
 
-  const handleRouteClick = (route: Journey) => {
-    toast(`Route: ${route.from} to ${route.to}`);
+  const handleRouteClick = (route: any) => {
+    if (route && route.from && route.to) {
+      toast.success(`Route: ${route.from} to ${route.to} - ${route.duration} mins, ₹${route.fare}`);
+    }
   };
 
   const clearRoute = () => {
@@ -156,11 +198,16 @@ export default function PlanTripPage() {
               <div className={styles.form}>
                 <div className={styles.stationInputs}>
                   <div className={styles.inputGroup}>
-                    <label className={styles.inputLabel}>From</label>
+                    <label className={styles.inputLabel}>
+                      From {fromStation && <span className={styles.selectedStation}>✓ {fromStation}</span>}
+                    </label>
                     <select
                       value={fromStation}
-                      onChange={(e) => setFromStation(e.target.value)}
-                      className={styles.stationSelect}
+                      onChange={(e) => {
+                        console.log('🚇 PlanTripPage: From station changed to:', e.target.value);
+                        setFromStation(e.target.value);
+                      }}
+                      className={`${styles.stationSelect} ${fromStation ? styles.selected : ''}`}
                     >
                       <option value="">Select departure station</option>
                       {stations.map(station => (
@@ -173,16 +220,22 @@ export default function PlanTripPage() {
                     className={styles.swapButton}
                     onClick={swapStations}
                     title="Swap stations"
+                    disabled={!fromStation || !toStation}
                   >
                     <FaArrowRight />
                   </button>
 
                   <div className={styles.inputGroup}>
-                    <label className={styles.inputLabel}>To</label>
+                    <label className={styles.inputLabel}>
+                      To {toStation && <span className={styles.selectedStation}>✓ {toStation}</span>}
+                    </label>
                     <select
                       value={toStation}
-                      onChange={(e) => setToStation(e.target.value)}
-                      className={styles.stationSelect}
+                      onChange={(e) => {
+                        console.log('🚇 PlanTripPage: To station changed to:', e.target.value);
+                        setToStation(e.target.value);
+                      }}
+                      className={`${styles.stationSelect} ${toStation ? styles.selected : ''}`}
                     >
                       <option value="">Select arrival station</option>
                       {stations.map(station => (
@@ -253,47 +306,24 @@ export default function PlanTripPage() {
           >
             {showMap && (
               <div className={styles.mapWrapper}>
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  {/* Metro Lines and Stations */}
-                  <MetroLayers
-                    lines={linesData || []}
-                    stations={stationsData || []}
-                    showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                    showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                    onStationClick={handleStationClick}
-                    onStationHover={handleStationHover}
-                    selectedStation={mapState.selectedStation}
-                  />
+                <InteractivePlanMap
+                  key={`${fromStation}-${toStation}`} // Force re-render when stations change
+                  fromStation={fromStation}
+                  toStation={toStation}
+                  height="500px"
+                  showControls={true}
+                  onStationClick={handleStationClick}
+                  onRouteClick={handleRouteClick}
+                />
 
-                  {/* Service Alerts */}
-                  <AlertsLayer
-                    alerts={alertsData || []}
-                    isVisible={mapState.layers.find(l => l.id === 'alerts')?.visible}
-                    onAlertClick={handleAlertClick}
-                    showPulseEffect={true}
-                  />
-
-                  {/* Planned Route */}
-                  {journey && (
-                    <RouteLayer
-                      route={journey as any}
-                      isVisible={mapState.layers.find(l => l.id === 'routes')?.visible}
-                      onRouteClick={handleRouteClick}
-                    />
-                  )}
-                </MapContainer>
-
-                {/* Layer Controls */}
+                {/* Layer Controls - TODO: Implement Google Maps layer toggles */}
                 {showLayers && (
                   <div className={styles.layerControls}>
-                    <LayerToggles
-                      layers={mapState.layers}
-                      onToggleLayer={toggleLayer}
-                    />
+                    <div style={{ padding: '8px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                      <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                        Layer controls coming soon
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -331,6 +361,24 @@ export default function PlanTripPage() {
                       <div className={styles.summaryValue}>₹{journey.totalFare}</div>
                     </div>
                   </div>
+                  {journey.departureTime && (
+                    <div className={styles.summaryItem}>
+                      <FaTrain className={styles.summaryIcon} />
+                      <div className={styles.summaryContent}>
+                        <div className={styles.summaryLabel}>Departure</div>
+                        <div className={styles.summaryValue}>{journey.departureTime}</div>
+                      </div>
+                    </div>
+                  )}
+                  {journey.arrivalTime && (
+                    <div className={styles.summaryItem}>
+                      <FaMapMarkerAlt className={styles.summaryIcon} />
+                      <div className={styles.summaryContent}>
+                        <div className={styles.summaryLabel}>Arrival</div>
+                        <div className={styles.summaryValue}>{journey.arrivalTime}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.journeySteps}>
@@ -364,6 +412,18 @@ export default function PlanTripPage() {
                         )}
                         {step.fare && (
                           <div className={styles.stepFare}>Fare: ₹{step.fare}</div>
+                        )}
+                        {step.trainId && (
+                          <div className={styles.trainInfo}>
+                            <FaTrain className={styles.trainIcon} />
+                            <span className={styles.trainId}>Train: {step.trainId}</span>
+                          </div>
+                        )}
+                        {step.departureTime && step.arrivalTime && (
+                          <div className={styles.timeInfo}>
+                            <span className={styles.departureTime}>Depart: {step.departureTime}</span>
+                            <span className={styles.arrivalTime}>Arrive: {step.arrivalTime}</span>
+                          </div>
                         )}
                       </div>
                     </motion.div>

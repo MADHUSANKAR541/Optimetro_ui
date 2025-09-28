@@ -7,11 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { DepotSchematicOverlay } from '@/components/maps/DepotSchematicOverlay';
-import { RakeMarker } from '@/components/maps/RakeMarker';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { AdminDashboardMap } from '@/components/maps/AdminDashboardMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useDepot, useTrains } from '@/hooks/useMockApi';
 import { Station, MetroLine, DepotSchematic, TrainRake, ShuntingMove } from '@/lib/types';
@@ -90,6 +86,10 @@ export default function StablingPage() {
 
   const handleStationClick = (station: Station) => {
     toast(`Station: ${station.name}`);
+  };
+
+  const handleAlertClick = (alert: any) => {
+    toast(`Alert: ${alert.title}`);
   };
 
   const handleSimulateShunting = () => {
@@ -203,56 +203,33 @@ export default function StablingPage() {
             <div className={styles.mapWrapper}>
               {viewMode === 'depot' ? (
                 depot.data && (
-                  <div style={{ height: '600px' }}>
-                    <DepotSchematicOverlay
-                      depot={depot.data}
-                      trains={trains.data || []}
-                      onTrainMove={handleTrainMove}
-                      onTrainClick={handleTrainClick}
-                      selectedTrain={selectedTrain}
-                    />
+                  <div style={{ height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>
+                      <h3 style={{ margin: '0 0 1rem 0', color: 'var(--color-text-primary)' }}>Depot Schematic</h3>
+                      <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                        Depot overlay functionality coming soon
+                      </p>
+                    </div>
                   </div>
                 )
               ) : (
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  <>
-                    <MetroLayers
-                      lines={lines.data || []}
-                      stations={stations.data || []}
-                      showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                      showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                      onStationClick={handleStationClick}
-                    />
-                    
-                    {/* Train Markers */}
-                    {trains.data?.map((train) => {
-                      if (!train.position?.lat || !train.position?.lng) return null;
-                      
-                      return (
-                        <RakeMarker
-                          key={train.id}
-                          train={train}
-                          isSelected={selectedTrain === train.id}
-                          onClick={handleTrainClick}
-                          showPopup={selectedTrain === train.id}
-                        />
-                      );
-                    })}
-                  </>
-                </MapContainer>
+                <AdminDashboardMap
+                  height="500px"
+                  showControls={true}
+                  onStationClick={handleStationClick}
+                  onTrainClick={handleTrainClick}
+                  onAlertClick={handleAlertClick}
+                />
               )}
 
-              {/* Layer Controls */}
+              {/* Layer Controls - TODO: Implement Google Maps layer toggles */}
               {showLayers && (
                 <div className={styles.layerControls}>
-                  <LayerToggles
-                    layers={mapState.layers}
-                    onToggleLayer={toggleLayer}
-                  />
+                  <div style={{ padding: '8px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                      Layer controls coming soon
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

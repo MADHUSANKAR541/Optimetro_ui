@@ -14,7 +14,7 @@ const defaultLayers: MapLayer[] = [
 
 export function useMapState(initialCenter?: [number, number], initialZoom?: number) {
   const [mapState, setMapState] = useState<MapState>({
-    center: initialCenter || MAP_CONFIG.defaultCenter,
+    center: initialCenter || [MAP_CONFIG.defaultCenter.lat, MAP_CONFIG.defaultCenter.lng],
     zoom: initialZoom || MAP_CONFIG.defaultZoom,
     layers: defaultLayers,
     selectedStation: undefined,
@@ -82,7 +82,7 @@ export function useMapState(initialCenter?: [number, number], initialZoom?: numb
   const resetMap = useCallback(() => {
     setMapState(prev => ({
       ...prev,
-      center: MAP_CONFIG.defaultCenter,
+      center: [MAP_CONFIG.defaultCenter.lat, MAP_CONFIG.defaultCenter.lng],
       zoom: MAP_CONFIG.defaultZoom,
       selectedStation: undefined,
       selectedRoute: undefined,

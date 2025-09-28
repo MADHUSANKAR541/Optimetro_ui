@@ -84,24 +84,24 @@ export function Hero() {
           className={styles.textContent}
         >
           <h1 className={styles.title}>
-            Smart Train Induction and Scheduling for
+            Your Smart Journey Starts Here with
             <span className={styles.highlight}> Kochi Metro</span>
           </h1>
           <p className={styles.subtitle}>
-            Smarter operations, happier passengers — smart planning and
-            real-time insights to Kochi Metro, ensuring reliable trains, shorter
-            waits, and seamless journeys every day.
+            Book tickets, plan your journey, and travel smart with Kochi Metro. 
+            Real-time updates, easy booking, and seamless travel experience 
+            for your daily commute across the city.
           </p>
 
           <div className={styles.ctaButtons}>
-            <Link href="/commuter/dashboard">
-              <Button variant="primary" size="lg" icon={<FaSignInAlt />}>
-                Sign In
+            <Link href="/book-tickets">
+              <Button variant="primary" size="lg" icon={<FaTicketAlt />}>
+                Book Tickets Now
               </Button>
             </Link>
-            <Link href="/book-tickets">
-              <Button variant="outline" size="lg" icon={<FaTicketAlt />}>
-                Book Tickets
+            <Link href="/commuter/dashboard">
+              <Button variant="outline" size="lg" icon={<FaSignInAlt />}>
+                Plan Journey
               </Button>
             </Link>
           </div>

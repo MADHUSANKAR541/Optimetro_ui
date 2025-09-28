@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { useLoading } from '@/contexts/LoadingContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiMail, FiLock, FiUser } from 'react-icons/fi';

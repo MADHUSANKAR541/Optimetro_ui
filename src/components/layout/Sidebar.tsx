@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   FiHome,
   FiMap,
@@ -63,6 +63,11 @@ const adminItems: SidebarItem[] = [
     icon: <FiBarChart2 />,
   },
   {
+    href: "/admin/dashboard/ai",
+    label: "AI Dashboard",
+    icon: <FiTrendingUp />,
+  },
+  {
     href: "/admin/dashboard/conflicts",
     label: "Conflicts",
     icon: <FiAlertTriangle />,
@@ -79,7 +84,7 @@ const adminItems: SidebarItem[] = [
 ];
 
 export function Sidebar() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -129,10 +134,7 @@ export function Sidebar() {
     }
   }, [pathname]);
 
-  const items =
-    session?.user && "role" in session.user && session.user.role === "admin"
-      ? adminItems
-      : commuterItems;
+  const items = user?.role === "admin" ? adminItems : commuterItems;
 
   const isCollapsedEffective = isMobile ? !isOpen : isCollapsed;
 
@@ -197,16 +199,12 @@ export function Sidebar() {
           {!isCollapsed && (
             <>
               <div className={styles.userAvatar}>
-                {session?.user?.name?.charAt(0).toUpperCase()}
+                {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div className={styles.userDetails}>
-                <div className={styles.userName}>{session?.user?.name}</div>
+                <div className={styles.userName}>{user?.name}</div>
                 <div className={styles.userRole}>
-                  {session?.user &&
-                  "role" in session.user &&
-                  session.user.role === "admin"
-                    ? "Administrator"
-                    : "Commuter"}
+                  {user?.role === "admin" ? "Administrator" : "Commuter"}
                 </div>
               </div>
             </>

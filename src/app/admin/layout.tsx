@@ -1,34 +1,34 @@
 ﻿'use client';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Loading } from '@/components/ui/Loading';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (loading) return;
     
-    if (!session) {
+    if (!user) {
       router.push('/login');
       return;
     }
     
-    if (session.user.role !== 'admin') {
+    if (user.role !== 'admin') {
       router.push('/commuter/dashboard');
       return;
     }
-  }, [session, status, router]);
+  }, [user, loading, router]);
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="loading-overlay">
         <Loading size="lg" />
@@ -36,7 +36,7 @@ export default function AdminLayoutWrapper({
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!user || user.role !== 'admin') {
     return null;
   }
 

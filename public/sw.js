@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'kochi-metro-v1';
+const CACHE_NAME = 'kochi-metro-v1';
 const urlsToCache = [
   '/',
   '/commuter/dashboard',

@@ -1,14 +1,13 @@
 ﻿'use client';
 
-import React from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/lib/theme';
 import { Button } from '@/components/ui/Button';
 import { FiSun, FiMoon, FiBell } from 'react-icons/fi';
 import styles from './Topbar.module.scss';
 
 export function CommuterTopbar() {
-  const { data: session } = useSession();
+  const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -36,7 +35,7 @@ export function CommuterTopbar() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={() => logout()}
         >
           Logout
         </Button>

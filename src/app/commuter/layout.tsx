@@ -1,34 +1,34 @@
 ﻿'use client';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { CommuterLayout } from '@/components/layout/CommuterLayout';
 import { Loading } from '@/components/ui/Loading';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function CommuterLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (loading) return;
     
-    if (!session) {
+    if (!user) {
       router.push('/login');
       return;
     }
     
-    if (session.user.role !== 'commuter') {
+    if (user.role !== 'commuter') {
       router.push('/admin/dashboard/induction');
       return;
     }
-  }, [session, status, router]);
+  }, [user, loading, router]);
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="loading-overlay">
         <Loading size="lg" />
@@ -36,7 +36,7 @@ export default function CommuterLayoutWrapper({
     );
   }
 
-  if (!session || session.user.role !== 'commuter') {
+  if (!user || user.role !== 'commuter') {
     return null;
   }
 

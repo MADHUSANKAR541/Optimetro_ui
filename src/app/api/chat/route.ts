@@ -1,6 +1,4 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { generateChatCompletion } from '@/lib/aiClient';
 import { AI_CONFIG } from '@/lib/apiConfig';
 
@@ -44,8 +42,9 @@ function answerForAdmin(text: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const role = (session?.user?.role || 'commuter') as Role;
+  // For demo purposes, default to admin role
+  // In production, this would be determined by authentication
+  const role = 'admin' as Role;
 
   try {
     const { message } = await request.json();

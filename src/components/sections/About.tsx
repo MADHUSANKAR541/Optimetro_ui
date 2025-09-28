@@ -1,6 +1,5 @@
 ﻿'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { 
@@ -13,10 +12,10 @@ import {
 import styles from './About.module.scss';
 
 const stats = [
-  { icon: <FaTrain />, value: '25+', label: 'Trains Operating' },
+  { icon: <FaTrain />, value: '25+', label: 'Trains Daily' },
   { icon: <FaMapMarkerAlt />, value: '12', label: 'Stations' },
   { icon: <FaUsers />, value: '50K+', label: 'Daily Commuters' },
-  { icon: <FaRocket />, value: '99.5%', label: 'Punctuality' }
+  { icon: <FaRocket />, value: '99.5%', label: 'On-Time Service' }
 ];
 
 
@@ -32,10 +31,11 @@ export function About() {
           viewport={{ once: true }}
           className={styles.header}
         >
-          <h2 className={styles.title}>About OptiMetro</h2>
+          <h2 className={styles.title}>About Kochi Metro</h2>
           <p className={styles.subtitle}>
-            Transforming urban mobility through innovation, technology, and a commitment 
-            to sustainable transportation solutions for the people of Kerala.
+            Connecting Kochi with modern, efficient, and comfortable metro services. 
+            Your reliable partner for daily commuting across the city with smart features 
+            and digital convenience.
           </p>
         </motion.div>
 
@@ -80,7 +80,9 @@ export function About() {
               </div>
               <h3 className={styles.cardTitle}>Our Mission</h3>
               <p className={styles.cardDescription}>
-              To simplify and transform metro operations with explainable AI, enabling smarter decisions, reliable services, and sustainable growth. We aim to bridge the gap between operational efficiency and commuter satisfaction.
+              To provide safe, reliable, and comfortable metro services that connect Kochi efficiently. 
+              We're committed to making your daily commute smooth, affordable, and environmentally friendly 
+              with modern technology and excellent customer service.
               </p>
             </Card>
           </motion.div>
@@ -98,7 +100,9 @@ export function About() {
               </div>
               <h3 className={styles.cardTitle}>Our Vision</h3>
               <p className={styles.cardDescription}>
-              To build the future of urban mobility where every metro system runs seamlessly — optimized, transparent, and eco-friendly — delivering stress-free journeys for millions of commuters every day.
+              To be Kochi's preferred mode of transportation, offering world-class metro services 
+              that are accessible, affordable, and sustainable. We envision a connected city where 
+              every journey is comfortable, safe, and environmentally conscious.
               </p>
             </Card>
           </motion.div>

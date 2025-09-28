@@ -1,14 +1,12 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { useLoading } from '@/contexts/LoadingContext';
-import { Card } from '@/components/ui/Card';
-import { FaTrain, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiMail, FiLock } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -17,6 +15,7 @@ import styles from './login.module.scss';
 export default function LoginPage() {
   const router = useRouter();
   const { setLoading } = useLoading();
+  const { login, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,22 +25,29 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result?.error) {
-        toast.error('Invalid credentials. Please try again.');
-      } else {
-        const session = await getSession();
-        if (session?.user.role === 'admin') {
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update auth context
+        await login(email, password);
+        toast.success('Welcome back!');
+        
+        // Redirect based on user role from the response
+        if (data.user?.role === 'admin') {
           router.push('/admin/dashboard/induction');
         } else {
           router.push('/commuter/dashboard');
         }
-        toast.success('Welcome back!');
+      } else {
+        toast.error(data.error || 'Invalid credentials. Please try again.');
       }
     } catch (error) {
       toast.error('An error occurred. Please try again.');

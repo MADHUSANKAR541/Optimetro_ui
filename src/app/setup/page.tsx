@@ -69,7 +69,7 @@ export default function SetupPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/create-admin', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,8 @@ export default function SetupPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          role: 'admin'
         }),
       });
 
@@ -174,6 +175,7 @@ export default function SetupPage() {
 
               <div className={styles.warning}>
                 <p>⚠️ This will create the system administrator account. Only one admin account is allowed.</p>
+                <p>📝 Make sure you have configured your environment variables first.</p>
               </div>
 
               <Button
@@ -185,6 +187,12 @@ export default function SetupPage() {
               >
                 Create Admin Account
               </Button>
+              
+              <div className={styles.envLink}>
+                <a href="/setup/env" className={styles.envLinkText}>
+                  Configure Environment Variables First
+                </a>
+              </div>
             </form>
           </Card>
         </motion.div>

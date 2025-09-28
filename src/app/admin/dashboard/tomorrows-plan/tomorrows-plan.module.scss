@@ -4,6 +4,89 @@
   min-height: 100vh;
 }
 
+// AI Modified Indicators
+.aiModifiedRow {
+  background-color: #fff5f5 !important;
+  border-left: 4px solid #dc3545 !important;
+  
+  &:hover {
+    background-color: #ffe6e6 !important;
+  }
+  
+  // Special styling for withdrawn trains
+  &.withdrawnRow {
+    background-color: #f8d7da !important;
+    border-left: 4px solid #dc3545 !important;
+    opacity: 0.8;
+    
+    &:hover {
+      background-color: #f5c6cb !important;
+    }
+  }
+}
+
+// AI Added Indicators (Green)
+.aiAddedRow {
+  background-color: #f0f9ff !important;
+  border-left: 4px solid #28a745 !important;
+  
+  &:hover {
+    background-color: #e6f7ff !important;
+  }
+}
+
+.aiModifiedTag {
+  display: inline-block;
+  background: #dc3545;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.aiAddedTag {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.aiModifiedStatus {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.aiAddedStatus {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.withdrawnReason {
+  display: block;
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+.addedReason {
+  display: block;
+  font-size: 0.75rem;
+  color: #28a745;
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
 .header {
   display: flex;
   align-items: center;

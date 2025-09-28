@@ -7,10 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapCard } from '@/components/maps/MapCard';
-import { MapContainer } from '@/components/maps/MapContainer';
-import { MetroLayers } from '@/components/maps/MetroLayers';
-import { AlertsLayer } from '@/components/maps/AlertsLayer';
-import { LayerToggles } from '@/components/maps/LayerToggles';
+import { AdminDashboardMap } from '@/components/maps/AdminDashboardMap';
 import { useMapState } from '@/hooks/useMapState';
 import { useStations, useMetroLines, useAlerts, useMaintenanceRecords } from '@/hooks/useSupabaseApi';
 import { MaintenanceRecord, Station, MetroLine, MapAlert } from '@/lib/types';
@@ -52,6 +49,18 @@ export default function MaintenancePage() {
     toast(`Selected maintenance: ${record.description}`);
   };
 
+  const handleTrainClick = (train: any) => {
+    toast.success(`Train: ${train.title || train.name || 'Unknown'}`);
+  };
+
+  const handleAlertClick = (alert: MapAlert) => {
+    toast.success(`Alert: ${alert.title}`);
+  };
+
+  const handleStationClick = (station: Station) => {
+    toast.success(`Station: ${station.name}`);
+  };
+
   const handleCompleteMaintenance = async (recordId: string) => {
     try {
       setMaintenanceRecords(prev => prev.map(record => 
@@ -65,13 +74,6 @@ export default function MaintenancePage() {
     }
   };
 
-  const handleStationClick = (station: Station) => {
-    toast(`Station: ${station.name}`);
-  };
-
-  const handleAlertClick = (alert: MapAlert) => {
-    toast(`Alert: ${alert.title}`);
-  };
 
   const getMaintenanceIcon = (type: string) => {
     switch (type) {
@@ -173,69 +175,22 @@ export default function MaintenancePage() {
           >
             {showMap && (
               <div className={styles.mapWrapper}>
-                <MapContainer
-                  center={mapState.center}
-                  zoom={mapState.zoom}
-                  height="100%"
-                >
-                  {/* Metro Lines and Stations */}
-                  <MetroLayers
-                    lines={Array.isArray(linesData) ? linesData : []}
-                    stations={Array.isArray(stationsData) ? stationsData : []}
-                    showLines={mapState.layers.find(l => l.id === 'lines')?.visible}
-                    showStations={mapState.layers.find(l => l.id === 'stations')?.visible}
-                    onStationClick={handleStationClick}
-                  />
+                <AdminDashboardMap
+                  height="500px"
+                  showControls={true}
+                  onStationClick={handleStationClick}
+                  onTrainClick={handleTrainClick}
+                  onAlertClick={handleAlertClick}
+                />
 
-                  {/* Service Alerts */}
-                  <AlertsLayer
-                    alerts={Array.isArray(alertsData) ? alertsData : []}
-                    isVisible={mapState.layers.find(l => l.id === 'alerts')?.visible}
-                    onAlertClick={handleAlertClick}
-                    showPulseEffect={true}
-                  />
-
-                  {/* Maintenance Spotlight Effects */}
-                  {selectedRecord && (() => {
-                    const record = (maintenanceRecords || []).find((r: any) => r.id === selectedRecord);
-                    if (!record) return null;
-                    
-                    const affectedStations = getAffectedStations(record);
-                    
-                    return (
-                      <>
-                        {affectedStations.map((station, index) => (
-                          <motion.div
-                            key={station.id}
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className={styles.spotlightEffect}
-                            style={{
-                              position: 'absolute',
-                              left: `${(station.lng - 76.1) / 0.3 * 100}%`,
-                              top: `${(10.1 - station.lat) / 0.3 * 100}%`,
-                              width: '40px',
-                              height: '40px',
-                              background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
-                              borderRadius: '50%',
-                              pointerEvents: 'none',
-                              zIndex: 1000
-                            }}
-                          />
-                        ))}
-                      </>
-                    );
-                  })()}
-                </MapContainer>
-
-                {/* Layer Controls */}
+                {/* Layer Controls - TODO: Implement Google Maps layer toggles */}
                 {showLayers && (
                   <div className={styles.layerControls}>
-                    <LayerToggles
-                      layers={mapState.layers}
-                      onToggleLayer={toggleLayer}
-                    />
+                    <div style={{ padding: '8px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+                      <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                        Layer controls coming soon
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

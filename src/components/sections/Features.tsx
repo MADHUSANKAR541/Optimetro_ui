@@ -1,48 +1,46 @@
 ﻿'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { 
   FaUsers, 
-  FaFileDownload, 
-  FaPlug, 
-  FaFlask, 
-  FaEye, 
+  FaTicketAlt, 
+  FaMapMarkerAlt, 
+  FaCog, 
   FaRocket 
 } from 'react-icons/fa';
 import styles from './Features.module.scss';
 
 const features = [
   {
-    icon: <FaUsers />,
-    title: 'Commuter-Centric Impact',
-    description: 'Shorter wait times, higher train availability, and a more reliable metro experience for daily passengers.'
+    icon: <FaTicketAlt />,
+    title: 'Easy Ticket Booking',
+    description: 'Book your metro tickets in seconds with our simple, user-friendly booking system. No queues, no hassle.'
   },
   {
-    icon: <FaFileDownload />,
-    title: 'Governance-Ready Reports',
-    description: 'Download audit-proof PDF and CSV plans with complete traceability for compliance and accountability.'
-  },
-  {
-    icon: <FaPlug />,
-    title: 'Seamless Integration',
-    description: 'Works smoothly with existing systems (GTFS, Maximo, telemetry) and scales as the metro network expands'
-  },
-  {
-    icon: <FaFlask />,
-    title: 'What-If Simulations',
-    description: 'Test scenarios like bay closures or delayed trains and instantly see the impact on operations and commuter service.'
-  },
-  {
-    icon: <FaEye />,
-    title: 'Explainable AI',
-    description: 'Every decision is transparent, with clear reasons shown for each train\'s induction, stabling, or maintenance choice.'
+    icon: <FaMapMarkerAlt />,
+    title: 'Smart Journey Planning',
+    description: 'Plan your route with real-time updates, station information, and the best travel options for your destination.'
   },
   {
     icon: <FaRocket />,
-    title: 'One-Click Planning',
-    description: 'Generate the entire next-day schedule in minutes, replacing hours of manual work with instant, optimized outputs.'
+    title: 'Real-Time Updates',
+    description: 'Get instant notifications about train delays, platform changes, and service updates directly to your phone.'
+  },
+  {
+    icon: <FaUsers />,
+    title: 'Comfortable Travel',
+    description: 'Enjoy air-conditioned coaches, comfortable seating, and a smooth ride experience across all metro stations.'
+  },
+  {
+    icon: <FaCog />,
+    title: 'Smart Features',
+    description: 'Access live train tracking, station facilities, parking information, and connect with other transport modes.'
+  },
+  {
+    icon: <FaRocket />,
+    title: 'Digital Convenience',
+    description: 'Mobile tickets, digital payments, and paperless travel with our integrated digital metro experience.'
   }
 ];
 
@@ -57,10 +55,10 @@ export function Features() {
           viewport={{ once: true }}
           className={styles.header}
         >
-          <h2 className={styles.title}>Why Choose OptiMetro?</h2>
+          <h2 className={styles.title}>Why Choose Kochi Metro?</h2>
           <p className={styles.subtitle}>
-            Experience the future of urban transportation with cutting-edge technology 
-            and innovative solutions designed for modern cities.
+            Experience modern urban transportation with smart features, 
+            comfortable travel, and digital convenience designed for your daily commute.
           </p>
         </motion.div>
 

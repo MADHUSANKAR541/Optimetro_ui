@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -86,8 +86,8 @@ export function Contact() {
         >
           <h2 className={styles.title}>Get in Touch</h2>
           <p className={styles.subtitle}>
-            Have questions, feedback, or need assistance? We're here to help you 
-            with all your metro transportation needs.
+            Need help with booking tickets, planning your journey, or have feedback? 
+            We're here to assist you with all your metro travel needs.
           </p>
         </motion.div>
 
@@ -136,7 +136,7 @@ export function Contact() {
             className={styles.contactForm}
           >
             <Card variant="elevated" className={styles.formCard}>
-              <h3 className={styles.formTitle}>Send us a Message</h3>
+              <h3 className={styles.formTitle}>Send us Feedback</h3>
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.formGroup}>
                   <label htmlFor="name" className={styles.formLabel}>Name</label>
