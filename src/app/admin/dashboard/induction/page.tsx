@@ -43,6 +43,8 @@ export default function InductionPage() {
   const [selectedGtfsRoute, setSelectedGtfsRoute] = useState<string>('');
   const [selectedGtfsTrip, setSelectedGtfsTrip] = useState<string>('');
   const [hydrated, setHydrated] = useState(false);
+  const [explainLoadingId, setExplainLoadingId] = useState<string | null>(null);
+  const [explanationsByTrain, setExplanationsByTrain] = useState<Record<string, any>>({});
 
   const { mapState, toggleLayer, selectTrain, clearSelection } = useMapState();
   const { data: stationsData, loading: stationsLoading } = useStations();
@@ -367,6 +369,8 @@ export default function InductionPage() {
         </Card>
       </motion.div>
 
+      {/* Explainability section removed; per-result explain buttons implemented below */}
+
       <div className={styles.content}>
         {/* Geographic Context Map */}
         <motion.div
@@ -495,6 +499,68 @@ export default function InductionPage() {
                             ))}
                           </div>
                         </div>
+
+                        <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            loading={explainLoadingId === result.trainId}
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setExplainLoadingId(result.trainId);
+                              try {
+                                const trainId = result.trainId.startsWith('KMRL-') ? result.trainId : `KMRL-${result.trainId}`;
+                                const inductionDecision = String(result.action || '').toLowerCase();
+                                const baseUrl = process.env.INDUCTION_API_URL||"https://optimetro-backend-cpo9.onrender.com";
+                                if (!baseUrl) {
+                                  toast.error('NEXT_PUBLIC_INDUCTION_API_URL is not set');
+                                  setExplainLoadingId(null);
+                                  return;
+                                }
+                                const res = await fetch(`${baseUrl}/api/explain`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    train_id: trainId,
+                                    induction_decision: inductionDecision
+                                  })
+                                });
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data?.error || 'Failed to explain');
+                                const payloadOut = (data && typeof data === 'object' && 'data' in data) ? (data as any).data : data;
+                                setExplanationsByTrain(prev => ({ ...prev, [result.trainId]: payloadOut }));
+                                toast.success('Explanation generated');
+                              } catch (err) {
+                                toast.error('Failed to generate explanation');
+                              } finally {
+                                setExplainLoadingId(null);
+                              }
+                            }}
+                          >
+                            Explain
+                          </Button>
+                        </div>
+
+                        {explainLoadingId === result.trainId && (
+                          <div className={styles.aiLoading}>
+                            <span className={styles.aiPulse} />
+                            <span className={styles.aiText}>
+                              AI is thinking
+                              <span className={styles.aiDots}>
+                                <span className={styles.aiDot} />
+                                <span className={styles.aiDot} />
+                                <span className={styles.aiDot} />
+                              </span>
+                            </span>
+                          </div>
+                        )}
+
+                        {explanationsByTrain[result.trainId]?.summary && (
+                          <div className={styles.reason} style={{ marginTop: 8 }}>
+                            <h4 className={styles.reasonTitle}>Summary</h4>
+                            <p className={styles.reasonText}>{explanationsByTrain[result.trainId].summary}</p>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   ))}

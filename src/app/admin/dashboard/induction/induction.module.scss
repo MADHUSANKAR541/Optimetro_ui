@@ -359,6 +359,57 @@
   }
 }
 
+.aiLoading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+}
+
+.aiPulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  animation: a-pulse 1.2s ease-in-out infinite;
+}
+
+.aiText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aiDots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.aiDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-text-secondary);
+  opacity: 0.3;
+  animation: a-bounce 1.4s infinite ease-in-out both;
+}
+
+.aiDot:nth-child(1) { animation-delay: -0.32s; }
+.aiDot:nth-child(2) { animation-delay: -0.16s; }
+.aiDot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes a-pulse {
+  0%, 100% { transform: scale(0.9); filter: brightness(1); }
+  50% { transform: scale(1.15); filter: brightness(1.2); }
+}
+
+@keyframes a-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+  40% { transform: translateY(-4px); opacity: 0.9; }
+}
+
 .layerControls {
   position: absolute;
   top: var(--space-md);
