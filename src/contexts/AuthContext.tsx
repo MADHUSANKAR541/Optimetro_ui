@@ -55,6 +55,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      // Redirect to home page after logout
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     }
   };
 

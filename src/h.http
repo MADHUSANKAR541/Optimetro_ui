@@ -1,0 +1,7 @@
+POST http://optimetro-backend-cpo9.onrender.com/api/explain
+Content-Type: application/json
+
+{
+    "train_id": "KMRL-007",
+    "induction_decision": "run"
+}

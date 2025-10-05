@@ -510,13 +510,18 @@ export default function InductionPage() {
                               setExplainLoadingId(result.trainId);
                               try {
                                 const trainId = result.trainId.startsWith('KMRL-') ? result.trainId : `KMRL-${result.trainId}`;
-                                const inductionDecision = String(result.action || '').toLowerCase();
+                                let inductionDecision = String(result.action || '').toLowerCase();
                                 const baseUrl = process.env.INDUCTION_API_URL||"https://optimetro-backend-cpo9.onrender.com";
                                 if (!baseUrl) {
                                   toast.error('NEXT_PUBLIC_INDUCTION_API_URL is not set');
                                   setExplainLoadingId(null);
                                   return;
                                 }
+
+                                if(result.action === 'revenue') 
+                                  {
+                                    inductionDecision = 'run';
+                                  }
                                 const res = await fetch(`${baseUrl}/api/explain`, {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },

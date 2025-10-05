@@ -15,7 +15,9 @@ export function middleware(request: NextRequest) {
     '/status',
     '/api/auth/login',
     '/api/auth/signup',
-    '/api/auth/logout'
+    '/api/auth/logout',
+    '/guest/admin',
+    '/guest/commuter'
   ];
 
   // Check if the current path is public

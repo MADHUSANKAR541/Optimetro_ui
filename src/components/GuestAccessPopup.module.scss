@@ -1,0 +1,193 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.popup {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #333;
+  }
+}
+
+.content {
+  padding: 32px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+}
+
+.welcomeMessage {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.description {
+  margin-bottom: 32px;
+  
+  p {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.buttonGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.adminButton {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 8px;
+  
+  &:hover {
+    background: #1d4ed8;
+  }
+  
+  &:active {
+    background: #1e40af;
+  }
+}
+
+.commuterButton {
+  width: 100%;
+  background: white;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+  
+  &:hover {
+    background: #f8fafc;
+    border-color: #1d4ed8;
+    color: #1d4ed8;
+  }
+  
+  &:active {
+    background: #e2e8f0;
+  }
+}
+
+.buttonDescription {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .popup {
+    width: 95%;
+    margin: 16px;
+  }
+  
+  .content {
+    padding: 24px;
+  }
+  
+  .buttonContainer {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .buttonGroup {
+    min-width: unset;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .welcomeMessage {
+    font-size: 18px;
+  }
+}
